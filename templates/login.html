@@ -1,0 +1,54 @@
+{% include "header.html" %}
+
+<div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card shadow-lg rounded-4">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4 fw-bold">Login to AuctionHouse</h3>
+                        
+                        <!-- Flash messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        {% for category, message in messages %}
+                        <p class="flash">{{ message }}</p>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+
+                        <form method="POST" action="{{ url_for('login') }}">
+                            {{ form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ form.email.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-envelope text-primary"></i>
+                                    </span>
+                                    {{ form.email(class="form-control form-control-sm", placeholder="name@example.com") }}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                {{ form.password.label(class="form-label fw-semibold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-lock-fill text-primary"></i>
+                                    </span>
+                                    {{ form.password(class="form-control form-control-sm", placeholder="Password") }}
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                            </button>
+                        </form>
+                        
+                        <hr class="my-4">
+                        <div class="text-center mt-3">
+                            <span>Don't have an account? <a href="#" class="text-decoration-none">Sign Up</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% include "footer.html" %}

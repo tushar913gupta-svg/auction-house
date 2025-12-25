@@ -1,0 +1,82 @@
+{% include "header.html" %}
+
+<section class="pb-5 pt-3 bg-black text-white text-center">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Discover &amp; Bid</h1>
+    <p class="lead mb-4">
+      Find rare treasures, used panties, anything you can think of, common or unique!
+    </p>
+    <a href="{{ url_for('auction', q='', category='', sort='latest') }}"
+       class="btn btn-light btn-lg px-4 fw-bold">
+      Browse Auctions
+    </a>
+  </div>
+</section>
+
+<div class="container my-5">
+  <h2 class="mb-4 fw-bold text-center">Most Popular Auctions</h2>
+  <div class="row g-4 justify-content-center">
+    {% for product in products %}
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+          <img src="/static/images/{{product.id}}/{{product.images[0]}}"
+               class="card-img-top"
+               style="width:100%; height:300px; object-fit:cover;"
+               alt="{{ product.title }}">
+          <div class="card-body">
+            <h4 class="card-title fw-bold">{{ product.title }}</h4>
+            <p class="card-text text-muted">{{ product.subtitle }}</p>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-success fs-5 text-primary">
+                Rs. {{ product.price }}
+              </span>
+              <span class="badge bg-warning text-dark auction-timer"
+                    data-endtime="{{ product.end_time.isoformat() }}">
+                {{ product.duration }} hours left
+              </span>
+            </div>
+            <a class="btn btn-primary w-100"
+               href="{{ url_for('item', id=product.id) }}">
+              Place Bid
+            </a>
+          </div>
+        </div>
+      </div>
+    <script>
+      function updateAuctionTimers() {
+        const timers = document.querySelectorAll('.auction-timer');
+        timers.forEach(function(timer) {
+          const endTimeStr = timer.getAttribute('data-endtime');
+          if (!endTimeStr) return;
+
+          const endTime = new Date(endTimeStr);
+          const now = new Date();
+          let diff = endTime - now;
+
+          if (diff < 0) {
+            timer.textContent = 'Auction ended';
+            timer.classList.remove('bg-warning');
+            timer.classList.add('bg-danger');
+            timer.classList.remove('text-dark');
+          } else {
+            const hours = Math.floor(diff / 1000 / 60 / 60);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            let timeStr = '';
+            if (hours > 0) timeStr += hours + 'h ';
+            if (hours > 0 || minutes > 0) timeStr += minutes + 'm ';
+            timeStr += seconds + 's left';
+
+            timer.textContent = timeStr;
+          }
+        });
+      }
+      setInterval(updateAuctionTimers, 1000);
+      updateAuctionTimers();
+    </script>
+    {% endfor %}
+  </div>
+</div>
+
+{% include "footer.html" %}

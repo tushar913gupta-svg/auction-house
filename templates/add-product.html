@@ -1,0 +1,118 @@
+{% from "bootstrap5/form.html" import render_form %} {% block content %} {%
+include "header.html" %}
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title fw-bold mb-4 text-center">Create a New Auction Item</h2>
+          <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              {{ form.title.label(class="form-label") }}
+              {{ form.title(class="form-control") }}
+              {% for error in form.title.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.subtitle.label(class="form-label") }}
+              {{ form.subtitle(class="form-control") }}
+              {% for error in form.subtitle.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.tag.label(class="form-label") }}
+              {{ form.tag(class="form-select", id="tag-select") }}
+              {% for error in form.tag.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3" id="other-category-div" style="display:none;">
+              {{ form.other.label(class="form-label") }}
+              {{ form.other(class="form-control") }}
+              {% for error in form.other.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.description.label(class="form-label") }}
+              {{ form.description(class="form-control") }}
+              {% for error in form.description.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.img.label(class="form-label") }}
+              {{ form.img(class="form-control") }}
+              {% for error in form.img.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.price.label(class="form-label") }}
+              {{ form.price(class="form-control") }}
+              {% for error in form.price.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.duration.label(class="form-label") }}
+              {{ form.duration(class="form-select") }}
+              {% for error in form.duration.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.location.label(class="form-label") }}
+              {{ form.location(class="form-control") }}
+              {% for error in form.location.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.shipping.label(class="form-label") }}
+              {{ form.shipping(class="form-control") }}
+              {% for error in form.shipping.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="d-grid gap-2">
+              {{ form.submit(class="btn btn-primary btn-lg") }}
+              <input class="btn btn-secondary btn-md" id="preview" name="preview" type="submit" value="Preview">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tagSelect = document.getElementById('tag-select');
+  const otherDiv = document.getElementById('other-category-div');
+  function toggleOther() {
+    if (tagSelect.value === 'other') {
+      otherDiv.style.display = 'block';
+    } else {
+      otherDiv.style.display = 'none';
+    }
+  }
+  tagSelect.addEventListener('change', toggleOther);
+  toggleOther(); // Run once on page load
+});
+</script>
+{% include "footer.html" %} {% endblock %}

@@ -1,0 +1,206 @@
+{% include "header.html" %}
+
+<div class="container my-5">
+  <div class="row g-4">
+    <!-- Image Gallery -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm mb-3">
+        <img src="/static/images/{{product.id}}/{{product.images[0]}}"
+             class="card-img-top"
+             style="width:100%; height:400px; object-fit:cover;"
+             alt="{{ product.title }}"
+             id="main-product-image">
+      </div>
+      <div class="d-flex gap-2">
+        {% for image in product.images %}
+        <button type="button"
+                onclick="swapMainImage('/static/images/{{product.id}}/{{image}}')"
+                style="border: none; background: none; padding: 0;">
+          <img src="/static/images/{{product.id}}/{{image}}"
+             class="img-thumbnail"
+             alt="Thumb1"
+             style="width:70px; height:70px; object-fit:cover;">
+        </button>
+        {% endfor %}
+
+        <script>
+          function swapMainImage(newSrc) {
+            document.getElementById('main-product-image').src = newSrc;
+          }
+        </script>
+      </div>
+    </div>
+
+    <!-- Item Details and Bidding -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h2 class="card-title fw-bold mb-3">{{ product.title }}</h2>
+          <div class="mb-3">
+            <span class="badge bg-warning text-dark auction-timer"
+                  data-endtime="{{ product.end_time.isoformat() }}">
+              {{ product.duration }} hours left
+            </span>
+            <span class="badge bg-success">Live</span>
+          </div>
+          <h4 class="text-primary fw-bold mb-3">Rs. {{ product.price }}</h4>
+          <form class="mb-4" method="post">
+            <div class="mb-3">
+              <label for="bidAmount" class="form-label">Your Bid</label>
+              <!-- Flash messages -->
+              {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+              {% for category, message in messages %}
+              <p class="text-danger">{{ message }}</p>
+              {% endfor %}
+              {% endif %}
+              {% endwith %}
+              <div class="input-group">
+                <span class="input-group-text">Rs.</span>
+                <input type="number"
+                       class="form-control"
+                       id="bidAmount"
+                       placeholder="Enter your bid"
+                       name="bid">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Place Bid</button>
+          </form>
+          <div class="mb-4">
+            <h6 class="fw-bold">Auction Details</h6>
+            <ul class="list-unstyled mb-0">
+              <li>
+                <strong>Current Bidder:</strong>
+                {% if product.bids|length > 0 %}
+                {{ product.bids[-1].bidder.name }}
+                {% else %}
+                  -
+                {% endif %}
+              </li>
+              <li><strong>Number of Bids:</strong> {{ product.bids|length }}</li>
+              <li><strong>Ends:</strong> {{end}}</li>
+              <li><strong>Location:</strong> {{ product.location }}</li>
+            </ul>
+          </div>
+          <div>
+            <h6 class="fw-bold">Description</h6>
+            <p class="text-muted mb-0">{{ product.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs for More Info -->
+  <div class="row mt-5">
+    <div class="col-lg-8">
+      <ul class="nav nav-tabs mb-3" id="itemTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active"
+                  id="desc-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#desc"
+                  type="button"
+                  role="tab">
+            Description
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link"
+                  id="bids-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#bids"
+                  type="button"
+                  role="tab">
+            Bid History
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link"
+                  id="shipping-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#shipping"
+                  type="button"
+                  role="tab">
+            Shipping
+          </button>
+        </li>
+      </ul>
+      <div class="tab-content" id="itemTabContent">
+        <div class="tab-pane fade show active p-3 bg-white border border-top-0 rounded-bottom"
+             id="desc"
+             role="tabpanel">
+          <p>{{ product.description }}</p>
+        </div>
+        <div class="tab-pane fade p-3 bg-white border border-top-0 rounded-bottom"
+             id="bids"
+             role="tabpanel">
+          <ul class="list-group list-group-flush">
+            {% if product.bids|length > 1 %}
+              {% for i in range(1, product.bids|length + 1) %}
+                <li class="list-group-item d-flex justify-content-between">
+                  <span><strong>{{ product.bids[-i].bidder.name }}</strong></span>
+                  <span class="text-primary">{{ product.bids[-i].amount }}</span>
+                  <span class="text-muted">2 min ago</span>
+                </li>
+              {% endfor %}
+            {% elif product.bids|length == 1 %}
+              <li class="list-group-item d-flex justify-content-between">
+                <span><strong>{{ product.bids[-1].bidder.name }}</strong></span>
+                <span class="text-primary">{{ product.bids[-1].amount }}</span>
+                <span class="text-muted">2 min ago</span>
+              </li>
+            {% else %}
+              <li class="list-group-item text-center text-muted">No bids yet.</li>
+            {% endif %}
+          </ul>
+        </div>
+        <div class="tab-pane fade p-3 bg-white border border-top-0 rounded-bottom"
+             id="shipping"
+             role="tabpanel">
+          <p>{{ product.shipping }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function updateAuctionTimers() {
+  const timers = document.querySelectorAll('.auction-timer');
+  timers.forEach(function(timer) {
+    const endTimeStr = timer.getAttribute('data-endtime');
+    if (!endTimeStr) return;
+
+    const endTime = new Date(endTimeStr);
+    const now = new Date();
+    let diff = endTime - now;
+
+    if (diff < 0) {
+      timer.textContent = 'Auction ended';
+      timer.classList.remove('bg-warning');
+      timer.classList.add('bg-danger');
+      timer.classList.remove('text-dark');
+      const live =  document.querySelector('.bg-success');
+      live.remove()
+      const button = document.querySelector('.btn-primary');
+      button.disabled = true;
+    } else {
+      const hours = Math.floor(diff / 1000 / 60 / 60);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      let timeStr = '';
+      if (hours > 0) timeStr += hours + 'h ';
+      if (hours > 0 || minutes > 0) timeStr += minutes + 'm ';
+      timeStr += seconds + 's left';
+
+      timer.textContent = timeStr;
+    }
+  });
+}
+setInterval(updateAuctionTimers, 1000);
+updateAuctionTimers();
+</script>
+
+{% include "footer.html" %}

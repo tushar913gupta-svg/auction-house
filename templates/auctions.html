@@ -1,0 +1,169 @@
+{% include "header.html" %}
+
+<!-- Hero Header -->
+<header class="bg-black text-white pt-1 pb-5 mb-4">
+  <div class="container text-center">
+    {% if my_bids %}
+    <h1 class="display-5 fw-bold">My Bids</h1>
+    {% else %}
+    <h1 class="display-5 fw-bold">Live Auctions</h1>
+    <p class="lead mb-0">Bid on anything you can think of!</p>
+    {% endif %}
+  </div>
+</header>
+
+<div class="container mb-5">
+  <form class="card shadow rounded-4 p-3 p-md-4">
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-md-5">
+        <div class="input-group">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-search text-primary"></i>
+          </span>
+          <input type="search"
+                 class="form-control border-start-0"
+                 placeholder="Search auctions..."
+                 name="q">
+        </div>
+      </div>
+      <div class="col-12 col-md-{% if my_bids %}2{% else %}3{% endif %}">
+        <div class="input-group">
+          <span class="input-group-text bg-white">
+            <i class="bi bi-tags text-info"></i>
+          </span>
+          <select class="form-select" name="category">
+            <option value="">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="fashion">Fashion</option>
+            <option value="collectibles">Collectibles</option>
+            <option value="art">Art</option>
+            {% for tag in tags %}
+              <option value="{{ tag.name.lower() }}">{{ tag.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="col-12 col-md-{% if my_bids %}2{% else %}3{% endif %}">
+        <div class="input-group">
+          <span class="input-group-text bg-white">
+            <i class="bi bi-sort-down text-info"></i>
+          </span>
+          <select class="form-select" name="sort">
+            <option value="latest">Latest</option>
+            <option value="ending_soon">Ending Soon</option>
+            <option value="low_to_high">Price: Low to High</option>
+            <option value="high_to_low">Price: High to Low</option>
+            <option value="most_bids">Most Bids</option>
+            {% if my_bids %}
+            <option value="losing_bids">Losing Bids</option>
+            <option value="winning_bids">Winning Bids</option>
+            {% endif %}
+          </select>
+        </div>
+      </div>
+      {% if my_bids %}
+      <div class="col-12 col-md-{% if my_bids %}2{% else %}3{% endif %}">
+        <div class="input-group">
+          <span class="input-group-text bg-white">
+            <i class="bi bi-sort-down text-info"></i>
+          </span>
+          <select class="form-select" name="status">
+            <option value="all_bids">All Bids</option>
+            <option value="losing_bids">Losing Bids</option>
+            <option value="winning_bids">Winning Bids</option>
+          </select>
+        </div>
+      </div>
+      {% endif %}
+      <!-- Search Button -->
+      <div class="col-12 col-md-1 d-grid">
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-funnel-fill me-1"></i>
+          Filter
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Auction Cards Grid -->
+<div class="container">
+  <div class="row g-4">
+    {% for product in products %}
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm product">
+          <img src="/static/images/{{product.id}}/{{product.images[0]}}"
+               class="card-img-top"
+               style="width:100%; height:300px; object-fit:cover;"
+               alt="{{ product.title }}">
+          <div class="card-body">
+            <h4 class="card-title fw-bold">{{ product.title }}</h4>
+            <p class="card-text text-muted">{{ product.subtitle }}</p>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-success fs-5 text-primary">
+                Rs. {{ product.price }}
+              </span>
+              <span class="badge bg-warning text-dark auction-timer"
+                    data-endtime="{{ product.end_time.isoformat() }}">
+                {{ product.duration }} hours left
+              </span>
+            </div>
+            <a class="btn btn-primary w-100"
+               href="{{ url_for('item', id=product.id) }}">
+              Place Bid
+            </a>
+          </div>
+        </div>
+      </div>
+    <script>
+      function updateAuctionTimers() {
+        const timers = document.querySelectorAll('.auction-timer');
+        timers.forEach(function(timer) {
+          const endTimeStr = timer.getAttribute('data-endtime');
+          if (!endTimeStr) return;
+
+          const endTime = new Date(endTimeStr);
+          const now = new Date();
+          let diff = endTime - now;
+
+          if (diff < 0) {
+            timer.textContent = 'Auction ended';
+            timer.classList.remove('bg-warning');
+            timer.classList.add('bg-danger');
+            timer.classList.remove('text-dark');
+          } else {
+            const hours = Math.floor(diff / 1000 / 60 / 60);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            let timeStr = '';
+            if (hours > 0) timeStr += hours + 'h ';
+            if (hours > 0 || minutes > 0) timeStr += minutes + 'm ';
+            timeStr += seconds + 's left';
+
+            timer.textContent = timeStr;
+          }
+        });
+      }
+      setInterval(updateAuctionTimers, 1000);
+      updateAuctionTimers();
+    </script>
+    {% endfor %}
+  </div>
+
+  <nav aria-label="Auction page navigation" class="mt-5">
+    <ul class="pagination justify-content-center">
+      <li class="page-item disabled">
+        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+      </li>
+      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li>
+      <li class="page-item">
+        <a class="page-link" href="#">Next</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+{% include "footer.html" %}
